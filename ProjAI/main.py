@@ -1,6 +1,10 @@
 """Real-time MediaPipe gesture recognition. Q/ESC quits; S saves a screenshot."""
 from pathlib import Path
+import sys
 import time
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 import cv2
 import mediapipe as mp
 from mediapipe.tasks import python
