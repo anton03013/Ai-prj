@@ -1,4 +1,4 @@
-"""Recognize static ASL letters A-Z and digits 0-9 with a webcam."""
+"""Recognize ASL digits 0-9 from a webcam using a trained local model."""
 from __future__ import annotations
 
 import pickle
@@ -14,7 +14,7 @@ from sign_features import landmarks_to_features
 
 ROOT = Path(__file__).resolve().parent
 GESTURE_MODEL = ROOT / "models" / "gesture_recognizer.task"
-CLASSIFIER_MODEL = ROOT / "models" / "asl_signs.pkl"
+CLASSIFIER_MODEL = ROOT / "models" / "asl_digits.pkl"
 
 
 def main() -> None:
@@ -48,12 +48,12 @@ def main() -> None:
             if vector is not None:
                 probabilities = classifier.predict_proba([vector])[0]
                 best = probabilities.argmax()
-                text = f"ASL sign: {classifier.classes_[best]} ({probabilities[best]:.0%})"
+                text = f"ASL digit: {classifier.classes_[best]} ({probabilities[best]:.0%})"
             cv2.putText(frame, text, (20, 45), cv2.FONT_HERSHEY_SIMPLEX,
                         1, (0, 255, 0), 2, cv2.LINE_AA)
             cv2.putText(frame, "Esc: quit", (20, frame.shape[0] - 20),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.imshow("ASL static signs: A-Z, 0-9", frame)
+            cv2.imshow("ASL digits 0-9", frame)
             if cv2.waitKey(1) & 0xFF in (ord("q"), 27):
                 break
     finally:

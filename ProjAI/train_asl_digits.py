@@ -1,9 +1,8 @@
-"""Train a static ASL letter and digit classifier from a folder image dataset."""
+"""Train a static ASL digit (0-9) classifier from a folder image dataset."""
 from __future__ import annotations
 
 import argparse
 import pickle
-import string
 from collections import Counter
 from pathlib import Path
 
@@ -20,14 +19,12 @@ from sign_features import landmarks_to_features
 
 ROOT = Path(__file__).resolve().parent
 GESTURE_MODEL = ROOT / "models" / "gesture_recognizer.task"
-# ASL-HG contains these 36 static image classes. J and Z are included because
-# they are in the dataset, though real ASL signs for them include motion.
-LABELS = [str(value) for value in range(10)] + list(string.ascii_uppercase)
+LABELS = [str(value) for value in range(10)]
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp"}
 
 
 def image_label(path: Path) -> str | None:
-    """Find a supported class directory anywhere below the dataset directory."""
+    """Find a digit directory anywhere below the dataset directory."""
     for part in reversed(path.parts[:-1]):
         if part in LABELS:
             return part
@@ -37,10 +34,10 @@ def image_label(path: Path) -> str | None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("dataset", type=Path,
-                        help="Extracted ASL-HG directory containing folders 0-9 and A-Z")
-    parser.add_argument("--per-class", type=int, default=250,
-                        help="Maximum images per sign (default: 250)")
-    parser.add_argument("--output", type=Path, default=ROOT / "models" / "asl_signs.pkl")
+                        help="Extracted ASL-HG directory containing folders 0 through 9")
+    parser.add_argument("--per-class", type=int, default=400,
+                        help="Maximum images per digit (default: 400)")
+    parser.add_argument("--output", type=Path, default=ROOT / "models" / "asl_digits.pkl")
     args = parser.parse_args()
 
     if not GESTURE_MODEL.is_file():
@@ -56,7 +53,7 @@ def main() -> None:
                 files_by_label[label].append(path)
     missing = [label for label, files in files_by_label.items() if not files]
     if missing:
-        raise ValueError(f"No images found for signs: {', '.join(missing)}")
+        raise ValueError(f"No images found for digits: {', '.join(missing)}")
 
     options = vision.GestureRecognizerOptions(
         base_options=python.BaseOptions(model_asset_path=str(GESTURE_MODEL)),
